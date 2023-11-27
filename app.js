@@ -95,5 +95,5 @@ function hideCreateAccountForm() {
 // Função para mostrar o menu após o login
 function showMenu() {
   document.getElementById('loginForm').style.display = 'none';
-  document.getElementById('menu').style.display = 'block';
+  window.location.href = 'https://tgszwdv.github.io/organize/menu';
 }
