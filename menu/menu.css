@@ -13,54 +13,17 @@ body {
     margin: 0;
 }
 
-
-#content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 60vh; /* Ocupa a altura total da viewport */ /* Adicione esta propriedade para centralizar o conteúdo */  
+#menu {
+    text-align: center; /* Centraliza o texto horizontalmente */
+    margin-top: 110px;
+    width: 100%; /* Faz com que a div ocupe 100% da largura disponível */
 }
 
-.menu-list {
+ul {
     list-style-type: none;
     padding: 0;
     margin: 0;
-    display: none;
-    text-align: center; /* Adicione esta propriedade para centralizar os itens do menu */
-}
-
-.menu-list.active {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-.menu-list li {
-    margin: 10px;
-    padding: 10px;
-    background-color: #333;
-    border-radius: 15px;
-    box-shadow: 0 0 35px rgba(0, 0, 0, 0.5);
-}
-
-.menu-list a {
-    color: #fff;
-    text-decoration: none;
-    font-size: 18px;
-}
-
-.menu-list a:hover {
-    text-decoration: underline;
-}
-
-#menu {
-    display: block;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin-top: 110px;
+    display: inline-block; /* Faz com que a lista se comporte como um bloco em linha */
 }
 
 .menu-item {
@@ -69,12 +32,15 @@ body {
     background-color: #333;
     border-radius: 15px;
     box-shadow: 0 0 35px rgba(0, 0, 0, 0.5);
+    display: block;
+    width: 200px;
 }
 
 .menu-item a {
     color: #fff;
     text-decoration: none;
     font-size: 18px;
+    display: block;
 }
 
 .menu-item a:hover {
@@ -83,7 +49,6 @@ body {
 
 #logoutButton {
     margin-top: auto; /* Coloca o botão na parte inferior da barra lateral */
-    padding: 10px;
     background-color: #333;
     color: #fff;
     border: none;
@@ -91,7 +56,6 @@ body {
     border-radius: 5px;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
 }
-
 
 
 nav {
@@ -113,7 +77,7 @@ nav a:hover {
 header {
   background-color: #333;
   color: #fff;
-  padding: 10px;
+  padding: 5px;
   text-align: center;
   position: fixed;
   width: 100%;
