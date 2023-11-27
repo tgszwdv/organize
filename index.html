@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Organize</title>
+   <link rel="stylesheet" href="style.css">
+  <style>
+    
+  </style>
+</head>
+<body>
+
+<form id="loginForm" style="display: none;">
+  <h2>Organize</h2>
+  <button type="button" onclick="signInWithGoogle()">Entrar com o Google</button>
+  <br>
+  <label for="email">Email:</label>
+  <input type="email" id="email" required>
+  <br>
+  <label for="password">Senha:</label>
+  <input type="password" id="password" required>
+  <br>
+  <button type="button" onclick="signInWithEmail()">Login</button>
+  <br>
+  <button type="button" onclick="showCreateAccountForm()">Criar Conta</button>
+</form>
+
+<!-- Adiciona esta seção para o menu -->
+<div id="menu">
+  <h2>Menu de Aplicações</h2>
+  <ul>
+    <li><a href="https://organize.tiagoalmeida19.repl.co/consulta.html">Consultas</a></li>
+    <li><a href="#">Vacinas</a></li>
+    <li><a href="#">Aniversários</a></li>
+  </ul>
+</div>
+
+
+
+  <div class="container" id="createAccountContainer">
+      <h2>Criar Conta</h2>
+      <form id="createAccountForm">
+          <label for="createEmail">Email:</label>
+          <input type="email" id="createEmail" required>
+          <label for="createPassword">Senha:</label>
+          <input type="password" id="createPassword" required>
+          <button type="button" onclick="createAccount()">Criar Conta</button>
+      </form>
+  </div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+ <script src="app.js"></script> 
+  <!--<script src="consulta.js"></script>-->
+
+</body>
+</html>
