@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", function () {
     firebase.auth().signOut().then(function () {
       console.log("User signed out");
       // Example: Redirect to the login page
-      window.location.href = "https://organize.tiagoalmeida19.repl.co/";
+      window.location.href = "https://tgszwdv.github.io/organize";
     }).catch(function (error) {
       console.error("Error signing out: ", error);
     });
