@@ -1,0 +1,128 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #161616;
+    color: #fff;
+    display: flex;
+    height: 100vh;
+    margin: 0;
+}
+
+
+#content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 60vh; /* Ocupa a altura total da viewport */ /* Adicione esta propriedade para centralizar o conteúdo */  
+}
+
+.menu-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: none;
+    text-align: center; /* Adicione esta propriedade para centralizar os itens do menu */
+}
+
+.menu-list.active {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.menu-list li {
+    margin: 10px;
+    padding: 10px;
+    background-color: #333;
+    border-radius: 15px;
+    box-shadow: 0 0 35px rgba(0, 0, 0, 0.5);
+}
+
+.menu-list a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 18px;
+}
+
+.menu-list a:hover {
+    text-decoration: underline;
+}
+
+#menu {
+    display: block;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 110px;
+}
+
+.menu-item {
+    margin: 10px;
+    padding: 10px;
+    background-color: #333;
+    border-radius: 15px;
+    box-shadow: 0 0 35px rgba(0, 0, 0, 0.5);
+}
+
+.menu-item a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 18px;
+}
+
+.menu-item a:hover {
+    text-decoration: underline;
+}
+
+#logoutButton {
+    margin-top: auto; /* Coloca o botão na parte inferior da barra lateral */
+    padding: 10px;
+    background-color: #333;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+}
+
+
+
+nav {
+  text-align: center;
+}
+
+nav a {
+  color: #fff;
+  text-decoration: none;
+  margin: 0 15px;
+  font-size: 18px;
+}
+
+nav a:hover {
+  text-decoration: underline;
+}
+
+
+header {
+  background-color: #333;
+  color: #fff;
+  padding: 10px;
+  text-align: center;
+  position: fixed;
+  width: 100%;
+  top: 0;
+  z-index: 1000;
+}
+
+
+
+
+
+
