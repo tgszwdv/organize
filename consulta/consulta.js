@@ -32,7 +32,7 @@ firebase.auth().onAuthStateChanged(function (user) {
         console.error('Usuário não autenticado.');
 
         // Redirecionar para a página de login
-        window.location.href = 'https://organize.tiagoalmeida19.repl.co/';
+        window.location.href = 'https://tgszwdv.github.io/organize';
     }
 });
 
