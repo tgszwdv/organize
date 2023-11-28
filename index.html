@@ -1,59 +1,107 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
   <title>Organize</title>
-   <link rel="stylesheet" href="style.css">
-  <style>
-    
-  </style>
+  <link href="style.css" rel="stylesheet" type="text/css" />
 </head>
+
 <body>
+  <main>
 
-<form id="loginForm" style="display: none;">
-  <h2>Organize</h2>
-  <button type="button" onclick="signInWithGoogle()">Entrar com o Google</button>
-  <br>
-  <label for="email">Email:</label>
-  <input type="email" id="email" required>
-  <br>
-  <label for="password">Senha:</label>
-  <input type="password" id="password" required>
-  <br>
-  <button type="button" onclick="signInWithEmail()">Login</button>
-  <br>
-  <button type="button" onclick="showCreateAccountForm()">Criar Conta</button>
-</form>
+    <div class="login-box" id="login-type" style="display: block;">
+      <h2>Organize</h2>
+      <form>
+          <a href="#" onclick="signInWithGoogle()">
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          Login com Google
+        </a>
+        
+        <a href="#" onclick="showLoginWithEmail()">
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>Login com Email</a>
 
-<!-- Adiciona esta seção para o menu -->
-<div id="menu">
-  <h2>Menu de Aplicações</h2>
-  <ul>
-    <li><a href="https://organize.tiagoalmeida19.repl.co/consulta.html">Consultas</a></li>
-    <li><a href="#">Vacinas</a></li>
-    <li><a href="#">Aniversários</a></li>
-  </ul>
-</div>
-
-
-
-  <div class="container" id="createAccountContainer">
-      <h2>Criar Conta</h2>
-      <form id="createAccountForm">
-          <label for="createEmail">Email:</label>
-          <input type="email" id="createEmail" required>
-          <label for="createPassword">Senha:</label>
-          <input type="password" id="createPassword" required>
-          <button type="button" onclick="createAccount()">Criar Conta</button>
+        <a href="#" onclick="showCreateAccount()">
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>Criar Conta</a>
       </form>
-  </div>
+    </div>
+    
+    <div class="login-box" id="login-email" style="display: none;">
+      <h2>Organize</h2>
+      <form>
+        <div class="user-box">
+          <input type="text" id="email" name="email" required>
+          <label>Email</label>
+        </div>
+        <div class="user-box">
+          <input type="password" id="password" name="password" required>
+          <label>Password</label>
+        </div>
+          <a href="#" onclick="signInWithEmail()">
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          Login
+        </a>
+        <a href="#" onclick="showCreateAccount()">
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>Criar Conta</a>
+        <a href="#" onclick="showLoginType()">
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>Voltar</a>
+      </form>
+    </div>
 
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
- <script src="app.js"></script> 
-  <!--<script src="consulta.js"></script>-->
+    <div class="login-box" id="create-account-box" style="display: none;">
+      <h2>Criar Conta</h2>
+      <form>
+        <div class="user-box">
+          <input type="text" id="createNome" name="name" required>
+          <label>Nome</label>
+        </div>
+        <div class="user-box">
+          <input type="email" id="createEmail"  name="email" required>
+          <label>Email</label>
+        </div>
+        <div class="user-box">
+          <input type="password" id="createPassword"  name="newPassword" required>
+          <label>Nova Senha</label>
+        </div>
+        <a href="#" onclick="createAccountWithEmail()">
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>Criar Conta
+        </a>
+        <a href="#" onclick="showLoginType()">
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>Cancelar
+        </a>
+      </form>
+    </div>
+  </main>
 
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <script src="app.js"></script>
 </body>
+
 </html>
