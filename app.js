@@ -37,7 +37,7 @@ var database = firebase.database();
 auth.onAuthStateChanged((user) => {
   if (user) {
     console.log('Logado:', user);
-    window.location.href = '/menu/';
+    window.location.href = 'organize/menu';
   } else {
     console.log('Usuario não Logado.');
 
