@@ -97,7 +97,7 @@ function createAccountWithEmail() {
         updateProfileName(user, name);
 
         // Redireciona para a página '/menu'
-        window.location.href = '/menu/';
+        window.location.href = 'organize/menu/';
       })
       .catch((error) => {
         console.error('Erro ao criar conta com e-mail e senha:', error.message);
