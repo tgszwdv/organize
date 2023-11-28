@@ -54,8 +54,8 @@ function signInWithGoogle() {
       // Usuário autenticado com sucesso
       const user = userCredential.user;
       console.log('Usuário autenticado com Google:', user);
-      showMenu();
       const uid = user.uid;
+      window.location.href = 'organize/menu/';
     })
     .catch((error) => {
       console.error('Erro ao autenticar usuário com Google:', error.message);
