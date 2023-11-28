@@ -37,7 +37,7 @@ var database = firebase.database();
 auth.onAuthStateChanged((user) => {
   if (user) {
     console.log('Logado:', user);
-    window.location.href = '/menu/';
+    window.location.href = 'organize/menu/';
   } else {
     console.log('Usuario não Logado.');
 
@@ -72,7 +72,7 @@ function signInWithEmail() {
       // Usuário autenticado com sucesso
       const user = userCredential.user;
       console.log('Usuário autenticado com e-mail e senha:', user);
-      window.location.href = '/menu/';
+      window.location.href = 'organize/menu/';
     })
     .catch((error) => {
       console.error('Erro ao autenticar usuário com e-mail e senha:', error.message);
