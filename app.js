@@ -37,7 +37,7 @@ var database = firebase.database();
 auth.onAuthStateChanged((user) => {
   if (user) {
     console.log('Logado:', user);
-    window.location.href = '/organize/menu/';
+    window.location.href = '/menu/';
   } else {
     console.log('Usuario não Logado.');
 
@@ -55,7 +55,7 @@ function signInWithGoogle() {
       const user = userCredential.user;
       console.log('Usuário autenticado com Google:', user);
       const uid = user.uid;
-      window.location.href = '/organize/menu/';
+      window.location.href = '/menu/';
     })
     .catch((error) => {
       console.error('Erro ao autenticar usuário com Google:', error.message);
@@ -72,7 +72,7 @@ function signInWithEmail() {
       // Usuário autenticado com sucesso
       const user = userCredential.user;
       console.log('Usuário autenticado com e-mail e senha:', user);
-      window.location.href = /organize/menu/';
+      window.location.href = '/menu/';
     })
     .catch((error) => {
       console.error('Erro ao autenticar usuário com e-mail e senha:', error.message);
@@ -97,7 +97,7 @@ function createAccountWithEmail() {
         updateProfileName(user, name);
 
         // Redireciona para a página '/menu'
-        window.location.href = '/organize/menu/';
+        window.location.href = '/menu/';
       })
       .catch((error) => {
         console.error('Erro ao criar conta com e-mail e senha:', error.message);
