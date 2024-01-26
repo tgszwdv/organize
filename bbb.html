@@ -1,28 +1,46 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Players</title>
+    <title>Sua Página</title>
 </head>
 <body>
 
-<iframe src="https://reidoscanais.com/embed/?id=bbb" allow="encrypted-media" allowfullscreen="" frameborder="0" width="100%" height="400"></iframe>
+    <!-- Seu conteúdo HTML aqui -->
 
-<iframe src="https://reidoscanais.com/embed/?id=bbb2" allow="encrypted-media" allowfullscreen="" frameborder="0" width="100%" height="400"></iframe>
+    <div id="iframeContainer1">
+        <!-- O primeiro iframe será adicionado aqui -->
+    </div>
 
-<iframe src="https://reidoscanais.com/embed/?id=bbb3" allow="encrypted-media" allowfullscreen="" frameborder="0" width="100%" height="400"></iframe>
+    <div id="iframeContainer2">
+        <!-- O segundo iframe será adicionado aqui -->
+    </div>
 
-<iframe src="https://reidoscanais.com/embed/?id=bbb4" allow="encrypted-media" allowfullscreen="" frameborder="0" width="100%" height="400"></iframe>
+    <script>
+        // Criação do primeiro elemento iframe
+        var iframe1 = document.createElement("iframe");
+        iframe1.src = "https://reidoscanais.com/embed/?id=bbb";
+        iframe1.allow = "encrypted-media";
+        iframe1.allowfullscreen = true;
+        iframe1.frameborder = 0;
+        iframe1.width = "100%";
+        iframe1.height = 400;
 
-<script>
-    // Bloquear pop-ups ao sair da página
-    window.addEventListener('beforeunload', function (event) {
-        // Se houver pop-ups abertos, o navegador perguntará ao usuário antes de fechar a página
-        event.returnValue = '';
-    });
-</script>
+        // Adiciona o primeiro iframe ao container desejado
+        document.getElementById("iframeContainer1").appendChild(iframe1);
 
+        // Criação do segundo elemento iframe
+        var iframe2 = document.createElement("iframe");
+        iframe2.src = "https://reidoscanais.com/embed/?id=bbb2";
+        iframe2.allow = "encrypted-media";
+        iframe2.allowfullscreen = true;
+        iframe2.frameborder = 0;
+        iframe2.width = "100%";
+        iframe2.height = 400;
+
+        // Adiciona o segundo iframe ao container desejado
+        document.getElementById("iframeContainer2").appendChild(iframe2);
+    </script>
 </body>
 </html>
