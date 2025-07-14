@@ -309,7 +309,7 @@
               <input
                 type="search"
                 id="search-input"
-                placeholder="Buscar em chaves..."
+                placeholder="Buscar em tudo..."
                 class="block w-full rounded-lg border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-800 pl-10 pr-3 py-2 text-sm focus:border-sky-500 focus:ring-sky-500 transition"
               />
             </div>
@@ -319,7 +319,7 @@
                   Incluir conteúdo na busca
                 </label>
             </div>
-            </div>
+          </div>
         </div>
       </header>
 
@@ -557,7 +557,7 @@
         item: `<svg class="w-6 h-6 mr-3 text-slate-400 dark:text-slate-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>`,
         chevron: `<svg class="w-5 h-5 text-slate-400 dark:text-slate-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>`,
         trash: `<svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.134-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.067-2.09.92-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>`,
-        searchResult: `<svg class="w-6 h-6 mr-3 text-indigo-500 dark:text-indigo-400 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" /></svg>`,
+        searchResult: `<svg class="w-6 h-6 text-sky-500 dark:text-sky-400 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" /></svg>`,
       };
 
       let appElements = {};
@@ -1199,63 +1199,66 @@
           .addEventListener("click", cancelInlineForm);
       };
 
-      // INÍCIO DA ALTERAÇÃO: Modificando a função de busca
+      // --- INÍCIO DA ALTERAÇÃO: Lógica de busca corrigida e melhorada ---
       const searchAll = (nodes, query, currentPath, searchInContent) => {
         let results = [];
         const lowerCaseQuery = query.toLowerCase();
+
         for (const node of nodes) {
           if (!node) continue;
+          
           const nodePath = [...currentPath, { id: node.id, name: node.name }];
           let matched = false;
 
-          // Busca no nome da chave/sub-chave (sempre ativa)
+          // 1. Busca no NOME do nó (seja chave ou linha)
           if (String(node.name).toLowerCase().includes(lowerCaseQuery)) {
-            results.push({
-              id: node.id,
-              name: node.name,
-              path: nodePath,
-              context: node.isRow ? `Linha encontrada` : `Chave encontrada`,
-            });
-            matched = true;
-          }
-
-          // Busca no conteúdo, APENAS se a opção estiver habilitada
-          if (searchInContent && node.isRow && node.data) {
-            const matchInCell = node.data.find((cell) =>
-              String(cell).toLowerCase().includes(lowerCaseQuery)
-            );
-            if (matchInCell && !matched) {
-              // Adiciona o resultado apenas se já não foi encontrado pelo nome
+            // Se for uma linha (`isRow`), só adiciona aos resultados se a busca de conteúdo estiver ativa
+            if (!node.isRow || searchInContent) {
               results.push({
                 id: node.id,
                 name: node.name,
                 path: nodePath,
-                context: `Conteúdo: "...${matchInCell.substring(0, 50)}..."`,
+                context: node.isRow ? "Linha" : "Chave",
+              });
+              matched = true;
+            }
+          }
+
+          // 2. Busca nos DADOS INTERNOS de uma linha, apenas se a busca de conteúdo estiver ativa
+          if (searchInContent && node.isRow && node.data && !matched) {
+            const matchInCell = node.data.find((cell) =>
+              String(cell).toLowerCase().includes(lowerCaseQuery)
+            );
+            if (matchInCell) {
+              results.push({
+                id: node.id,
+                name: node.name,
+                path: nodePath,
+                context: "Conteúdo",
               });
             }
           }
 
-          const childrenToSearch = [
-            ...(node.children || []),
-            ...(node.content || []),
-          ];
-          if (childrenToSearch.length > 0) {
-            // Passa a flag 'searchInContent' para as chamadas recursivas
+          // 3. RECURSÃO: Decide para onde a busca continua
+          // Sempre busca dentro de 'children' (sub-chaves)
+          if (node.children && node.children.length > 0) {
             results = results.concat(
-              searchAll(childrenToSearch, query, nodePath, searchInContent)
+              searchAll(node.children, query, nodePath, searchInContent)
+            );
+          }
+          // Apenas busca dentro de 'content' (linhas) se a opção estiver marcada
+          if (searchInContent && node.content && node.content.length > 0) {
+            results = results.concat(
+              searchAll(node.content, query, nodePath, searchInContent)
             );
           }
         }
+
+        // Remove duplicatas
         return results.filter(
-          (v, i, a) =>
-            a.findIndex(
-              (t) =>
-                t.path.map((p) => p.id).join(">") ===
-                v.path.map((p) => p.id).join(">")
-            ) === i
+          (v, i, a) => a.findIndex((t) => t.id === v.id) === i
         );
       };
-      // FIM DA ALTERAÇÃO
 
       const renderSearchResults = (results) => {
         appElements.views.detail.classList.add("hidden-view");
@@ -1267,30 +1270,48 @@
           container.innerHTML = `<p class="text-center text-sm text-slate-500 dark:text-slate-400 p-4">Nenhum resultado encontrado.</p>`;
           return;
         }
-        results.forEach((result) => {
-          const pathString = result.path.map((p) => p.name).join(" > ");
+
+        results.forEach((result, index) => {
           const element = document.createElement("button");
-          element.className =
-            "key-item w-full flex items-center p-3 bg-white dark:bg-slate-800 rounded-lg shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors text-left";
-          element.innerHTML = `${ICONS.searchResult}<div class="flex-1 truncate"><span class="font-medium text-slate-700 dark:text-slate-200">${result.name}</span><p class="text-xs text-slate-500 dark:text-slate-400 truncate">${pathString}</p><p class="text-xs text-indigo-600 dark:text-indigo-400 truncate">${result.context}</p></div>${ICONS.chevron}`;
+          element.className = "w-full text-left p-4 bg-white dark:bg-slate-800 rounded-lg shadow-sm hover:shadow-md hover:border-sky-400 border border-transparent dark:hover:bg-slate-700/50 transition-all duration-200 flex items-center gap-4 animate-fade-in-up";
+          element.style.animationDelay = `${index * 30}ms`;
+
+          const pathHTML = result.path.slice(0, -1).map(p => `<span class="text-slate-500">${p.name}</span>`).join('<span class="mx-1.5 text-slate-400 dark:text-slate-600">/</span>');
+
+          element.innerHTML = `
+            <div class="flex-shrink-0">${ICONS.searchResult}</div>
+            <div class="flex-1 overflow-hidden">
+              <div class="text-xs text-slate-500 dark:text-slate-400 truncate mb-1">
+                ${pathHTML || 'Raiz'}
+              </div>
+              <p class="font-semibold text-base text-slate-800 dark:text-slate-100 truncate">
+                ${result.name}
+              </p>
+            </div>
+            <div class="flex-shrink-0">
+               <span class="inline-block bg-sky-100 text-sky-800 dark:bg-sky-900/50 dark:text-sky-300 text-xs font-medium px-2.5 py-1 rounded-full">
+                 ${result.context}
+               </span>
+            </div>
+          `;
+          
           element.addEventListener("click", () => navigateToPath(result.path));
           container.appendChild(element);
         });
       };
+      // --- FIM DA ALTERAÇÃO ---
 
-      // INÍCIO DA ALTERAÇÃO: Atualizando o gatilho da busca
       const handleSearch = () => {
         const query = appElements.header.searchInput.value.trim();
-        const searchInContent = appElements.header.searchContentToggle.checked; // Verifica o estado do checkbox
+        const searchInContent = appElements.header.searchContentToggle.checked;
 
         if (query.length > 1) {
-          const results = searchAll(data, query, [], searchInContent); // Passa o estado para a função
+          const results = searchAll(data, query, [], searchInContent);
           renderSearchResults(results);
         } else if (navigationPath.length === 0) {
           render();
         }
       };
-      // FIM DA ALTERAÇÃO
 
       const updateThemeIcon = () => {
         const isDark = document.documentElement.classList.contains("dark");
@@ -1315,9 +1336,7 @@
             optionsMenu: document.getElementById("options-menu"),
             editModeBtn: document.getElementById("edit-mode-btn"),
             searchInput: document.getElementById("search-input"),
-            // INÍCIO DA ALTERAÇÃO: Mapeando o novo elemento
             searchContentToggle: document.getElementById('search-content-toggle'),
-            // FIM DA ALTERAÇÃO
           },
           views: {
             list: document.getElementById("list-view"),
@@ -1375,10 +1394,7 @@
         );
         appElements.theme.toggle.addEventListener("click", toggleTheme);
         appElements.header.searchInput.addEventListener("input", handleSearch);
-        
-        // INÍCIO DA ALTERAÇÃO: Adicionando evento ao checkbox
         appElements.header.searchContentToggle.addEventListener('change', handleSearch);
-        // FIM DA ALTERAÇÃO
         
         appElements.login.googleSignInBtn.addEventListener("click", () =>
           signInWithPopup(auth, googleProvider)
