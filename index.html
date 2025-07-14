@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR" class="">
   <head>
@@ -316,7 +315,7 @@
             <div class="mt-2 flex items-center">
                 <input type="checkbox" id="search-content-toggle" class="h-4 w-4 rounded border-slate-300 dark:border-slate-600 text-sky-600 focus:ring-sky-500 bg-transparent">
                 <label for="search-content-toggle" class="ml-2 block text-sm text-slate-600 dark:text-slate-300">
-                  Incluir conteúdo na busca
+                  Busca profunda de conteúdo
                 </label>
             </div>
           </div>
@@ -353,7 +352,7 @@
               class="flex-grow p-3 text-sm h-full bg-white dark:bg-slate-800 rounded-r-md focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all duration-500 ease-in-out w-0 opacity-0 border-y-0 border-r-0"
             />
           </form>
-          <div id="keys-list-container" class="space-y-2"></div>
+          <div id="keys-list-container" class="space-y-3"></div>
         </div>
 
         <div id="detail-view" class="hidden-view">
@@ -1199,65 +1198,65 @@
           .addEventListener("click", cancelInlineForm);
       };
 
-      // --- INÍCIO DA ALTERAÇÃO: Lógica de busca corrigida e melhorada ---
+      // --- INÍCIO DA ALTERAÇÃO: Nova lógica de busca ---
       const searchAll = (nodes, query, currentPath, searchInContent) => {
-        let results = [];
-        const lowerCaseQuery = query.toLowerCase();
+          let results = [];
+          const lowerCaseQuery = query.toLowerCase();
 
-        for (const node of nodes) {
-          if (!node) continue;
+          for (const node of nodes) {
+              if (!node) continue;
+              const nodePath = [...currentPath, { id: node.id, name: node.name }];
+              let matched = false;
+              
+              if (searchInContent) {
+                  // --- MODO DE BUSCA PROFUNDA (CHECKBOX MARCADO) ---
+                  // 1. Busca no nome do nó (chave ou linha)
+                  if (String(node.name).toLowerCase().includes(lowerCaseQuery)) {
+                      results.push({ id: node.id, name: node.name, path: nodePath, context: node.isRow ? "Linha" : "Chave" });
+                      matched = true;
+                  }
+                  // 2. Busca em todos os dados da linha (se não encontrou no nome)
+                  if (node.isRow && node.data && !matched) {
+                      const matchInCell = node.data.find(cell => String(cell).toLowerCase().includes(lowerCaseQuery));
+                      if (matchInCell) {
+                          results.push({ id: node.id, name: node.name, path: nodePath, context: "Conteúdo" });
+                      }
+                  }
+                  // 3. Recursão profunda
+                  const childrenToSearch = [...(node.children || []), ...(node.content || [])];
+                  if (childrenToSearch.length > 0) {
+                      results = results.concat(searchAll(childrenToSearch, query, nodePath, searchInContent));
+                  }
+              } else {
+                  // --- MODO DE BUSCA PADRÃO (CHECKBOX DESMARCADO) ---
+                  // 1. Busca no nome da chave/sub-chave
+                  if (!node.isRow && String(node.name).toLowerCase().includes(lowerCaseQuery)) {
+                      results.push({ id: node.id, name: node.name, path: nodePath, context: "Chave" });
+                  }
+                  // 2. Busca no nome da linha (data[0]) para apontar para o PAI
+                  if (node.content && node.content.length > 0) {
+                      node.content.forEach(row => {
+                          if (String(row.name).toLowerCase().includes(lowerCaseQuery)) {
+                              results.push({ id: node.id, name: node.name, path: currentPath.concat({id: node.id, name: node.name}), context: `Contém "${row.name}"` });
+                          }
+                      });
+                  }
+                  // 3. Recursão apenas em sub-chaves
+                  if (node.children && node.children.length > 0) {
+                      results = results.concat(searchAll(node.children, query, nodePath, searchInContent));
+                  }
+              }
+          }
           
-          const nodePath = [...currentPath, { id: node.id, name: node.name }];
-          let matched = false;
-
-          // 1. Busca no NOME do nó (seja chave ou linha)
-          if (String(node.name).toLowerCase().includes(lowerCaseQuery)) {
-            // Se for uma linha (`isRow`), só adiciona aos resultados se a busca de conteúdo estiver ativa
-            if (!node.isRow || searchInContent) {
-              results.push({
-                id: node.id,
-                name: node.name,
-                path: nodePath,
-                context: node.isRow ? "Linha" : "Chave",
-              });
-              matched = true;
-            }
-          }
-
-          // 2. Busca nos DADOS INTERNOS de uma linha, apenas se a busca de conteúdo estiver ativa
-          if (searchInContent && node.isRow && node.data && !matched) {
-            const matchInCell = node.data.find((cell) =>
-              String(cell).toLowerCase().includes(lowerCaseQuery)
-            );
-            if (matchInCell) {
-              results.push({
-                id: node.id,
-                name: node.name,
-                path: nodePath,
-                context: "Conteúdo",
-              });
-            }
-          }
-
-          // 3. RECURSÃO: Decide para onde a busca continua
-          // Sempre busca dentro de 'children' (sub-chaves)
-          if (node.children && node.children.length > 0) {
-            results = results.concat(
-              searchAll(node.children, query, nodePath, searchInContent)
-            );
-          }
-          // Apenas busca dentro de 'content' (linhas) se a opção estiver marcada
-          if (searchInContent && node.content && node.content.length > 0) {
-            results = results.concat(
-              searchAll(node.content, query, nodePath, searchInContent)
-            );
-          }
-        }
-
-        // Remove duplicatas
-        return results.filter(
-          (v, i, a) => a.findIndex((t) => t.id === v.id) === i
-        );
+          // Remove duplicatas baseado no ID e no contexto para evitar repetições visuais
+          const uniqueResults = new Map();
+          results.forEach(res => {
+              const key = `${res.id}-${res.context}`;
+              if (!uniqueResults.has(key)) {
+                  uniqueResults.set(key, res);
+              }
+          });
+          return Array.from(uniqueResults.values());
       };
 
       const renderSearchResults = (results) => {
@@ -1267,7 +1266,7 @@
         const container = appElements.list.container;
         container.innerHTML = "";
         if (results.length === 0) {
-          container.innerHTML = `<p class="text-center text-sm text-slate-500 dark:text-slate-400 p-4">Nenhum resultado encontrado.</p>`;
+          container.innerHTML = `<div class="text-center p-8 rounded-lg bg-slate-100/50 dark:bg-slate-800/50"><svg class="mx-auto h-12 w-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg><h3 class="mt-2 text-lg font-medium text-slate-800 dark:text-slate-200">Nenhum resultado</h3><p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Tente um termo diferente ou altere o modo de busca.</p></div>`;
           return;
         }
 
@@ -1276,7 +1275,9 @@
           element.className = "w-full text-left p-4 bg-white dark:bg-slate-800 rounded-lg shadow-sm hover:shadow-md hover:border-sky-400 border border-transparent dark:hover:bg-slate-700/50 transition-all duration-200 flex items-center gap-4 animate-fade-in-up";
           element.style.animationDelay = `${index * 30}ms`;
 
-          const pathHTML = result.path.slice(0, -1).map(p => `<span class="text-slate-500">${p.name}</span>`).join('<span class="mx-1.5 text-slate-400 dark:text-slate-600">/</span>');
+          // O path para o resultado direto é o `result.path`.
+          const displayPath = result.path.slice(0, -1);
+          const pathHTML = displayPath.map(p => `<span class="text-slate-500">${p.name}</span>`).join('<span class="mx-1.5 text-slate-400 dark:text-slate-600">/</span>');
 
           element.innerHTML = `
             <div class="flex-shrink-0">${ICONS.searchResult}</div>
@@ -1289,7 +1290,7 @@
               </p>
             </div>
             <div class="flex-shrink-0">
-               <span class="inline-block bg-sky-100 text-sky-800 dark:bg-sky-900/50 dark:text-sky-300 text-xs font-medium px-2.5 py-1 rounded-full">
+               <span class="inline-block bg-sky-100 text-sky-800 dark:bg-sky-900/50 dark:text-sky-300 text-xs font-medium px-2.5 py-1 rounded-full whitespace-nowrap">
                  ${result.context}
                </span>
             </div>
@@ -1557,4 +1558,3 @@
     </script>
   </body>
 </html>
-
