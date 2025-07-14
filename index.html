@@ -1,3 +1,7 @@
+Claro, entendi a solicitação. A busca deve, por padrão, pesquisar apenas nos nomes das "chaves" e "sub-chaves". A pesquisa no conteúdo detalhado (as linhas das tabelas) só deve acontecer se uma opção específica for ativada pelo usuário.
+Para implementar isso, farei as seguintes modificações:
+ * Adicionar um Checkbox na Interface: Incluirei uma caixa de seleção abaixo da barra de busca com o texto "Incluir conteúdo na busca".
+ * Alterar 
 <!DOCTYPE html>
 <html lang="pt-BR" class="">
   <head>
@@ -113,7 +117,6 @@
     </div>
 
     <div id="app-container" class="max-w-4xl mx-auto hidden">
-      <!-- Cabeçalho Principal -->
       <header
         class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg shadow-sm sticky top-0 z-30 border-b border-slate-200 dark:border-slate-700"
       >
@@ -309,17 +312,21 @@
               <input
                 type="search"
                 id="search-input"
-                placeholder="Buscar em tudo..."
+                placeholder="Buscar em chaves..."
                 class="block w-full rounded-lg border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-800 pl-10 pr-3 py-2 text-sm focus:border-sky-500 focus:ring-sky-500 transition"
               />
             </div>
-          </div>
+            <div class="mt-2 flex items-center">
+                <input type="checkbox" id="search-content-toggle" class="h-4 w-4 rounded border-slate-300 dark:border-slate-600 text-sky-600 focus:ring-sky-500 bg-transparent">
+                <label for="search-content-toggle" class="ml-2 block text-sm text-slate-600 dark:text-slate-300">
+                  Incluir conteúdo na busca
+                </label>
+            </div>
+            </div>
         </div>
       </header>
 
-      <!-- Conteúdo Principal -->
       <main class="p-4">
-        <!-- Visão de Lista (Raiz ou Busca) -->
         <div id="list-view">
           <form id="add-key-form" class="flex mb-6 h-12 items-center">
             <button
@@ -352,7 +359,6 @@
           <div id="keys-list-container" class="space-y-2"></div>
         </div>
 
-        <!-- Visão de Detalhe -->
         <div id="detail-view" class="hidden-view">
           <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow-md mb-6">
             <div class="flex justify-between items-center mb-4">
@@ -426,7 +432,6 @@
       </main>
     </div>
 
-    <!-- Modals -->
     <div
       id="modal-backdrop"
       class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
@@ -500,7 +505,6 @@
       </div>
     </div>
 
-    <!-- Main App Logic -->
     <script type="module">
       // This script now handles all application logic, including Firebase integration.
 
@@ -1198,13 +1202,16 @@
           .addEventListener("click", cancelInlineForm);
       };
 
-      const searchAll = (nodes, query, currentPath) => {
+      // INÍCIO DA ALTERAÇÃO: Modificando a função de busca
+      const searchAll = (nodes, query, currentPath, searchInContent) => {
         let results = [];
         const lowerCaseQuery = query.toLowerCase();
         for (const node of nodes) {
           if (!node) continue;
           const nodePath = [...currentPath, { id: node.id, name: node.name }];
           let matched = false;
+
+          // Busca no nome da chave/sub-chave (sempre ativa)
           if (String(node.name).toLowerCase().includes(lowerCaseQuery)) {
             results.push({
               id: node.id,
@@ -1214,26 +1221,31 @@
             });
             matched = true;
           }
-          if (node.isRow && node.data) {
-            const match = node.data.find((cell) =>
+
+          // Busca no conteúdo, APENAS se a opção estiver habilitada
+          if (searchInContent && node.isRow && node.data) {
+            const matchInCell = node.data.find((cell) =>
               String(cell).toLowerCase().includes(lowerCaseQuery)
             );
-            if (match && !matched) {
+            if (matchInCell && !matched) {
+              // Adiciona o resultado apenas se já não foi encontrado pelo nome
               results.push({
                 id: node.id,
                 name: node.name,
                 path: nodePath,
-                context: `Conteúdo: "..."`,
+                context: `Conteúdo: "...${matchInCell.substring(0, 50)}..."`,
               });
             }
           }
+
           const childrenToSearch = [
             ...(node.children || []),
             ...(node.content || []),
           ];
           if (childrenToSearch.length > 0) {
+            // Passa a flag 'searchInContent' para as chamadas recursivas
             results = results.concat(
-              searchAll(childrenToSearch, query, nodePath)
+              searchAll(childrenToSearch, query, nodePath, searchInContent)
             );
           }
         }
@@ -1246,6 +1258,7 @@
             ) === i
         );
       };
+      // FIM DA ALTERAÇÃO
 
       const renderSearchResults = (results) => {
         appElements.views.detail.classList.add("hidden-view");
@@ -1268,15 +1281,19 @@
         });
       };
 
+      // INÍCIO DA ALTERAÇÃO: Atualizando o gatilho da busca
       const handleSearch = () => {
         const query = appElements.header.searchInput.value.trim();
+        const searchInContent = appElements.header.searchContentToggle.checked; // Verifica o estado do checkbox
+
         if (query.length > 1) {
-          const results = searchAll(data, query, []);
+          const results = searchAll(data, query, [], searchInContent); // Passa o estado para a função
           renderSearchResults(results);
         } else if (navigationPath.length === 0) {
           render();
         }
       };
+      // FIM DA ALTERAÇÃO
 
       const updateThemeIcon = () => {
         const isDark = document.documentElement.classList.contains("dark");
@@ -1301,6 +1318,9 @@
             optionsMenu: document.getElementById("options-menu"),
             editModeBtn: document.getElementById("edit-mode-btn"),
             searchInput: document.getElementById("search-input"),
+            // INÍCIO DA ALTERAÇÃO: Mapeando o novo elemento
+            searchContentToggle: document.getElementById('search-content-toggle'),
+            // FIM DA ALTERAÇÃO
           },
           views: {
             list: document.getElementById("list-view"),
@@ -1358,6 +1378,11 @@
         );
         appElements.theme.toggle.addEventListener("click", toggleTheme);
         appElements.header.searchInput.addEventListener("input", handleSearch);
+        
+        // INÍCIO DA ALTERAÇÃO: Adicionando evento ao checkbox
+        appElements.header.searchContentToggle.addEventListener('change', handleSearch);
+        // FIM DA ALTERAÇÃO
+        
         appElements.login.googleSignInBtn.addEventListener("click", () =>
           signInWithPopup(auth, googleProvider)
         );
@@ -1519,3 +1544,4 @@
     </script>
   </body>
 </html>
+
