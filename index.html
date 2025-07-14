@@ -1,0 +1,1522 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Organizer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+      .hidden-view {
+        display: none !important;
+      }
+      .options-menu {
+        transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+      }
+      .content-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.875rem;
+      }
+      .content-table th,
+      .content-table td {
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 1px solid;
+      }
+      .content-table th {
+        font-weight: 600;
+      }
+      html.dark .content-table th,
+      html.dark .content-table td {
+        border-color: #374151;
+      }
+      html:not(.dark) .content-table th,
+      html:not(.dark) .content-table td {
+        border-color: #e5e7eb;
+      }
+      .list-delete-btn {
+        display: none;
+      }
+      .edit-mode .list-delete-btn {
+        display: block;
+      }
+      .edit-mode .key-item-chevron {
+        display: none;
+      }
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .animate-fade-in-up {
+        animation: fadeInUp 0.3s ease-out forwards;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-slate-50 dark:bg-slate-900 font-sans text-slate-800 dark:text-slate-200 transition-colors duration-300"
+  >
+    <div
+      id="login-screen"
+      class="flex flex-col items-center justify-center min-h-screen p-4"
+    >
+      <h2 class="text-3xl font-bold mb-6 text-slate-800 dark:text-slate-100">
+        Bem-vindo ao Agrupador Universal
+      </h2>
+      <p class="text-slate-600 dark:text-slate-300 mb-8 text-center max-w-md">
+        Faça login para organizar suas chaves e conteúdos de forma segura e
+        sincronizada.
+      </p>
+      <button
+        id="google-signin-btn"
+        class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg flex items-center gap-3 transition-all duration-300"
+      >
+        <svg
+          class="w-6 h-6"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 48 48"
+          width="24px"
+          height="24px"
+        >
+          <path
+            fill="#FFC107"
+            d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,8.065,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"
+          />
+          <path
+            fill="#FF3D00"
+            d="M6.306,14.691l6.571,4.819C14.655,15.108,18.945,12,24,12c3.059,0,5.842,1.154,8.065,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,3.678,1.193,7.019,3.256,9.888l-6.57,4.819C3.465,37.752,2,34.492,2,24C2,18.092,3.952,12.595,6.306,14.691z"
+          />
+          <path
+            fill="#4CAF50"
+            d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"
+          />
+          <path
+            fill="#1976D2"
+            d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"
+          />
+        </svg>
+        Entrar com Google
+      </button>
+    </div>
+
+    <div id="app-container" class="max-w-4xl mx-auto hidden">
+      <!-- Cabeçalho Principal -->
+      <header
+        class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg shadow-sm sticky top-0 z-30 border-b border-slate-200 dark:border-slate-700"
+      >
+        <div class="container mx-auto px-4">
+          <div class="flex justify-between items-center h-16">
+            <div id="header-nav" class="flex items-center gap-2 min-w-0">
+              <button
+                id="back-btn"
+                class="hidden p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 flex-shrink-0"
+              >
+                <svg
+                  class="w-6 h-6"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="2"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M15.75 19.5L8.25 12l7.5-7.5"
+                  />
+                </svg>
+              </button>
+              <div
+                id="breadcrumb-container"
+                class="text-sm flex items-center flex-wrap gap-x-1 overflow-hidden"
+              ></div>
+            </div>
+            <div class="flex items-center gap-2">
+              <button
+                id="edit-mode-btn"
+                class="p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+              >
+                <svg
+                  class="w-6 h-6"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125"
+                  />
+                </svg>
+              </button>
+              <div class="relative">
+                <button
+                  id="options-btn"
+                  class="hidden p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                >
+                  <svg
+                    class="w-6 h-6"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z"
+                    />
+                  </svg>
+                </button>
+                <div
+                  id="options-menu"
+                  class="options-menu hidden absolute top-full right-0 mt-2 w-48 bg-white dark:bg-slate-800 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-40 origin-top-right"
+                >
+                  <div class="py-1" role="menu">
+                    <button
+                      id="rename-btn"
+                      class="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700"
+                      role="menuitem"
+                    >
+                      <svg
+                        class="w-5 h-5"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke-width="1.5"
+                        stroke="currentColor"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"
+                        />
+                      </svg>
+                      Renomear
+                    </button>
+                    <button
+                      id="delete-btn"
+                      class="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
+                      role="menuitem"
+                    >
+                      <svg
+                        class="w-5 h-5"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke-width="1.5"
+                        stroke="currentColor"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.134-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.067-2.09.92-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
+                        />
+                      </svg>
+                      Excluir
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <button
+                id="logout-btn"
+                class="p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 flex-shrink-0"
+              >
+                <svg
+                  class="w-6 h-6"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"
+                  />
+                </svg>
+              </button>
+              <button
+                id="theme-toggle"
+                class="p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 flex-shrink-0"
+              >
+                <svg
+                  id="theme-icon-light"
+                  class="h-6 w-6 hidden"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+                  ></path>
+                </svg>
+                <svg
+                  id="theme-icon-dark"
+                  class="h-6 w-6 hidden"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+                  ></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div id="search-bar-container" class="pb-4 pt-2">
+            <div class="relative">
+              <div
+                class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
+              >
+                <svg
+                  class="h-5 w-5 text-slate-400"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </div>
+              <input
+                type="search"
+                id="search-input"
+                placeholder="Buscar em tudo..."
+                class="block w-full rounded-lg border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-800 pl-10 pr-3 py-2 text-sm focus:border-sky-500 focus:ring-sky-500 transition"
+              />
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Conteúdo Principal -->
+      <main class="p-4">
+        <!-- Visão de Lista (Raiz ou Busca) -->
+        <div id="list-view">
+          <form id="add-key-form" class="flex mb-6 h-12 items-center">
+            <button
+              id="add-key-btn"
+              type="button"
+              class="bg-emerald-500 text-white font-bold w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-md hover:bg-emerald-600 transition-all duration-300 ease-in-out shadow-md"
+            >
+              <svg
+                class="w-6 h-6"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 4.5v15m7.5-7.5h-15"
+                />
+              </svg>
+            </button>
+            <input
+              type="text"
+              id="new-key-input"
+              placeholder="Nova chave..."
+              class="flex-grow p-3 text-sm h-full bg-white dark:bg-slate-800 rounded-r-md focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all duration-500 ease-in-out w-0 opacity-0 border-y-0 border-r-0"
+            />
+          </form>
+          <div id="keys-list-container" class="space-y-2"></div>
+        </div>
+
+        <!-- Visão de Detalhe -->
+        <div id="detail-view" class="hidden-view">
+          <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow-md mb-6">
+            <div class="flex justify-between items-center mb-4">
+              <h3
+                id="content-title"
+                class="text-lg font-semibold text-slate-800 dark:text-slate-200"
+              >
+                Conteúdo
+              </h3>
+              <button
+                id="show-add-content-btn"
+                class="p-1.5 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+              >
+                <svg
+                  class="w-6 h-6"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z"
+                  />
+                </svg>
+              </button>
+            </div>
+            <div id="content-display" class="space-y-3 mb-4"></div>
+            <div id="inline-form-container" class="mt-4"></div>
+          </div>
+
+          <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow-md mb-6">
+            <div class="flex justify-between items-center mb-4">
+              <h3
+                id="subkey-title"
+                class="text-lg font-semibold text-slate-800 dark:text-slate-200"
+              >
+                Sub-chaves
+              </h3>
+              <button
+                id="show-add-subkey-btn"
+                class="p-1.5 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+              >
+                <svg
+                  class="w-6 h-6"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z"
+                  />
+                </svg>
+              </button>
+            </div>
+            <div id="subkey-list-container" class="space-y-2 mb-4"></div>
+            <form id="add-subkey-form" class="hidden">
+              <input
+                type="text"
+                id="new-subkey-input"
+                placeholder="Nova sub-chave..."
+                class="flex-grow w-full p-3 text-sm border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500 transition mb-3"
+              />
+              <button
+                type="submit"
+                class="w-full bg-emerald-500 text-white font-bold py-2.5 px-4 rounded-lg hover:bg-emerald-600 transition-colors"
+              >
+                Criar Sub-chave
+              </button>
+            </form>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Modals -->
+    <div
+      id="modal-backdrop"
+      class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+    ></div>
+
+    <div
+      id="rename-modal"
+      class="hidden fixed inset-0 z-50 flex items-center justify-center p-4"
+    >
+      <div
+        class="bg-white dark:bg-slate-800 rounded-lg shadow-xl p-6 w-full max-w-sm"
+      >
+        <h3 class="text-lg font-bold mb-4">Renomear Chave</h3>
+        <form id="rename-form">
+          <input
+            type="text"
+            id="rename-input"
+            class="w-full p-2 border border-slate-300 dark:border-slate-600 rounded-md mb-4 bg-white dark:bg-slate-700"
+            required
+          />
+          <div class="flex justify-end gap-2">
+            <button
+              type="button"
+              id="cancel-rename-btn"
+              class="px-4 py-2 rounded-md text-sm font-medium bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              class="px-4 py-2 rounded-md text-sm font-medium text-white bg-sky-600 hover:bg-sky-700"
+            >
+              Salvar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div
+      id="delete-modal"
+      class="hidden fixed inset-0 z-50 flex items-center justify-center p-4"
+    >
+      <div
+        class="bg-white dark:bg-slate-800 rounded-lg shadow-xl p-6 w-full max-w-sm"
+      >
+        <h3 class="text-lg font-bold mb-2">Confirmar Exclusão</h3>
+        <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">
+          Você tem certeza que quer excluir "<span
+            id="delete-key-name"
+            class="font-bold"
+          ></span
+          >"? Esta ação não pode ser desfeita.
+        </p>
+        <div class="flex justify-end gap-2">
+          <button
+            type="button"
+            id="cancel-delete-btn"
+            class="px-4 py-2 rounded-md text-sm font-medium bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            id="confirm-delete-btn"
+            class="px-4 py-2 rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700"
+          >
+            Excluir
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main App Logic -->
+    <script type="module">
+      // This script now handles all application logic, including Firebase integration.
+
+      // --- FIREBASE SDK IMPORTS ---
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+      import {
+        getAuth,
+        onAuthStateChanged,
+        GoogleAuthProvider,
+        signInWithPopup,
+        signOut,
+        signInAnonymously,
+        signInWithCustomToken,
+      } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+      import {
+        getFirestore,
+        doc,
+        setDoc,
+        onSnapshot,
+        setLogLevel,
+      } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+      // --- FIREBASE & APP INITIALIZATION ---
+      const firebaseConfig =
+        typeof __firebase_config !== "undefined"
+          ? JSON.parse(__firebase_config)
+          : {
+        apiKey: "AIzaSyB2OkyEL8IwEJVm39guJ2uKDRnFbGrSuNs",
+        authDomain: "organizer-c70eb.firebaseapp.com",
+        databaseURL: "https://organizer-c70eb-default-rtdb.firebaseio.com",
+        projectId: "organizer-c70eb",
+        storageBucket: "organizer-c70eb.firebasestorage.app",
+        messagingSenderId: "764919847604",
+        appId: "1:764919847604:web:eddcaa9646e911f0b115e1",
+        measurementId: "G-5SJ2BWTERC"
+      };
+
+      const appId =
+        typeof __app_id !== "undefined" ? __app_id : "default-app-id";
+
+      const appFirebase = initializeApp(firebaseConfig);
+      const auth = getAuth(appFirebase);
+      const db = getFirestore(appFirebase);
+      const googleProvider = new GoogleAuthProvider();
+
+      let currentUser = null;
+      let userId = null;
+      let unsubscribeFromData = null;
+
+      // --- GLOBAL CONSTANTS & STATE ---
+      const ICONS = {
+        folder: `<svg class="w-6 h-6 mr-3 text-sky-500 dark:text-sky-400 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" /></svg>`,
+        item: `<svg class="w-6 h-6 mr-3 text-slate-400 dark:text-slate-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>`,
+        chevron: `<svg class="w-5 h-5 text-slate-400 dark:text-slate-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>`,
+        trash: `<svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.134-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.067-2.09.92-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>`,
+        searchResult: `<svg class="w-6 h-6 mr-3 text-indigo-500 dark:text-indigo-400 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" /></svg>`,
+      };
+
+      let appElements = {};
+      let data = [];
+      let navigationPath = [];
+      let isAdding = false;
+      let isInEditMode = false;
+      const THEME_KEY = "theme";
+
+      // --- ALL APP FUNCTIONS ---
+
+      const formatDateForDisplay = (isoDate) => {
+        if (!isoDate || !/^\d{4}-\d{2}-\d{2}$/.test(isoDate)) return isoDate;
+        const [year, month, day] = isoDate.split("-");
+        return `${day}/${month}/${year}`;
+      };
+
+      const saveDataToFirebase = async () => {
+        if (!userId) {
+          console.error("Save failed: No user is authenticated.");
+          return;
+        }
+        try {
+          const userDocRef = doc(
+            db,
+            "artifacts",
+            appId,
+            "users",
+            userId,
+            "data",
+            "mainDoc"
+          );
+          await setDoc(userDocRef, { organizerData: data });
+          console.log("Data saved to Firebase");
+        } catch (error) {
+          console.error("Firebase Save Error:", error);
+        }
+      };
+
+      const loadDataFromFirebase = () => {
+        if (!userId) return;
+        if (unsubscribeFromData) unsubscribeFromData();
+        const userDocRef = doc(
+          db,
+          "artifacts",
+          appId,
+          "users",
+          userId,
+          "data",
+          "mainDoc"
+        );
+        unsubscribeFromData = onSnapshot(
+          userDocRef,
+          (docSnap) => {
+            if (docSnap.exists()) {
+              data = docSnap.data().organizerData || [];
+              data.forEach(traverseAndMigrate);
+            } else {
+              console.log(
+                "No data found for user, initializing with empty array."
+              );
+              data = [];
+            }
+            render();
+          },
+          (error) => console.error("Firebase Load Error:", error)
+        );
+      };
+
+      const traverseAndMigrate = (node) => {
+        if (!node) return;
+        if (
+          node.tableHeaders &&
+          node.tableHeaders.length > 0 &&
+          typeof node.tableHeaders[0] === "string"
+        ) {
+          node.tableHeaders = node.tableHeaders.map((name) => ({
+            name,
+            type: "text",
+          }));
+        }
+        if (
+          node.content &&
+          node.content.length > 0 &&
+          Array.isArray(node.content[0])
+        ) {
+          node.content = node.content.map((rowData) => ({
+            id: Date.now() + Math.random(),
+            name: String(rowData[0] || "Item"),
+            data: rowData,
+            children: [],
+            isRow: true,
+          }));
+        }
+        if (!node.children) node.children = [];
+        if (!node.content) node.content = [];
+        node.children.forEach(traverseAndMigrate);
+        node.content.forEach(traverseAndMigrate);
+      };
+
+      const findNodeAndParent = (
+        searchNodes,
+        nodeId,
+        parent = null,
+        path = []
+      ) => {
+        for (const node of searchNodes) {
+          if (!node) continue;
+          const currentPath = [...path, { id: node.id, name: node.name }];
+          if (node.id === nodeId) return { node, parent, path: currentPath };
+          const childrenToSearch = [
+            ...(node.children || []),
+            ...(node.content || []),
+          ];
+          if (childrenToSearch.length > 0) {
+            const found = findNodeAndParent(
+              childrenToSearch,
+              nodeId,
+              node,
+              currentPath
+            );
+            if (found) return found;
+          }
+        }
+        return null;
+      };
+
+      const getCurrentNode = () => {
+        if (navigationPath.length === 0) return null;
+        const currentId = navigationPath[navigationPath.length - 1].id;
+        return findNodeAndParent(data, currentId)?.node || null;
+      };
+
+      const updateHeaderState = () => {
+        const isSearching =
+          appElements.header.searchInput.value.trim().length > 1;
+        const isRoot = navigationPath.length === 0;
+        appElements.header.backBtn.classList.toggle(
+          "hidden",
+          isRoot && !isSearching
+        );
+        appElements.header.optionsBtn.classList.toggle(
+          "hidden",
+          isRoot || isInEditMode || isSearching
+        );
+        appElements.header.editModeBtn.classList.remove("hidden");
+        appElements.header.optionsBtn.disabled = isInEditMode;
+        appElements.header.optionsBtn.classList.toggle(
+          "opacity-50",
+          isInEditMode
+        );
+      };
+
+      const renderBreadcrumbs = () => {
+        const container = appElements.header.breadcrumbs;
+        container.innerHTML = "";
+        updateHeaderState();
+        if (navigationPath.length === 0) {
+          const title = document.createElement("h1");
+          title.className =
+            "text-xl font-bold text-slate-900 dark:text-white truncate";
+          title.textContent = "Agrupador Universal";
+          container.appendChild(title);
+        } else {
+          const homeLink = document.createElement("button");
+          homeLink.textContent = "Início";
+          homeLink.className =
+            "hover:underline text-slate-500 dark:text-slate-400";
+          homeLink.onclick = () => {
+            if (isInEditMode) toggleEditMode();
+            navigationPath = [];
+            render();
+          };
+          container.appendChild(homeLink);
+          navigationPath.forEach((pathItem, index) => {
+            container.insertAdjacentHTML(
+              "beforeend",
+              `<span class="mx-1 text-slate-400 dark:text-slate-500">></span>`
+            );
+            if (index === navigationPath.length - 1) {
+              container.insertAdjacentHTML(
+                "beforeend",
+                `<span class="font-bold text-lg text-slate-800 dark:text-slate-100 truncate">${pathItem.name}</span>`
+              );
+            } else {
+              const pathLink = document.createElement("button");
+              pathLink.textContent = pathItem.name;
+              pathLink.className =
+                "hover:underline text-slate-500 dark:text-slate-400 truncate";
+              pathLink.onclick = () => {
+                if (isInEditMode) toggleEditMode();
+                navigationPath = navigationPath.slice(0, index + 1);
+                render();
+              };
+              container.appendChild(pathLink);
+            }
+          });
+        }
+      };
+
+      const renderKeyList = (nodes, container) => {
+        container.innerHTML = "";
+        const sortedNodes = [...nodes].sort((a, b) =>
+          a.name.localeCompare(b.name, "pt-BR", { sensitivity: "base" })
+        );
+        if (sortedNodes.length === 0) {
+          container.innerHTML = `<div class="text-center p-8 rounded-lg bg-slate-100/50 dark:bg-slate-800/50 animate-fade-in-up"><svg class="mx-auto h-12 w-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg><h3 class="mt-2 text-lg font-medium text-slate-800 dark:text-slate-200">Nenhum item aqui</h3><p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Comece adicionando uma nova chave abaixo.</p></div>`;
+          return;
+        }
+        sortedNodes.forEach((node, index) => {
+          const hasChildren =
+            (node.children && node.children.length > 0) ||
+            (node.content && node.content.length > 0);
+          const icon = hasChildren ? ICONS.folder : ICONS.item;
+          const element = document.createElement("div");
+          element.className =
+            "key-item-wrapper flex items-center animate-fade-in-up";
+          element.style.animationDelay = `${index * 50}ms`;
+          const mainButton = document.createElement("button");
+          mainButton.dataset.keyId = node.id;
+          mainButton.className =
+            "key-item flex-grow w-full flex items-center p-3 bg-white dark:bg-slate-800 rounded-lg shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900 text-left";
+          mainButton.innerHTML = `${icon}<span class="flex-1 truncate font-medium text-slate-700 dark:text-slate-200">${node.name}</span><div class="key-item-chevron">${ICONS.chevron}</div>`;
+          mainButton.addEventListener("click", () =>
+            navigateTo({ id: node.id, name: node.name })
+          );
+          const deleteButton = document.createElement("button");
+          deleteButton.className =
+            "list-delete-btn p-2 rounded-full text-slate-400 hover:text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 ml-2 transition-transform hover:scale-110";
+          deleteButton.innerHTML = ICONS.trash;
+          deleteButton.addEventListener("click", (e) => {
+            e.stopPropagation();
+            handleListItemDelete(node.id, node.name);
+          });
+          element.appendChild(mainButton);
+          element.appendChild(deleteButton);
+          container.appendChild(element);
+        });
+      };
+
+      const renderTableContent = (node) => {
+        const container = appElements.detail.contentDisplay;
+        container.innerHTML = "";
+        if (!node.tableHeaders || node.tableHeaders.length === 0) {
+          container.innerHTML = `<div class="text-center p-8 rounded-lg bg-slate-100/50 dark:bg-slate-800/50 animate-fade-in-up"><svg class="mx-auto h-12 w-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" /></svg><h3 class="mt-2 text-lg font-medium text-slate-800 dark:text-slate-200">Conteúdo não configurado</h3><p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Clique no botão '+' acima para definir as colunas.</p></div>`;
+          return;
+        }
+        const tableWrapper = document.createElement("div");
+        tableWrapper.className = "overflow-x-auto";
+        const table = document.createElement("table");
+        table.className =
+          "content-table bg-white dark:bg-slate-800 rounded-lg shadow-sm overflow-hidden";
+        const thead = table.createTHead();
+        const headerRow = thead.insertRow();
+        node.tableHeaders.forEach((header) => {
+          const th = document.createElement("th");
+          th.textContent = header.name;
+          headerRow.appendChild(th);
+        });
+        headerRow.insertCell().className = "w-8";
+        headerRow.insertCell().className = "w-8";
+        const tbody = table.createTBody();
+        if (node.content && node.content.length > 0) {
+          node.content.forEach((rowObject, rowIndex) => {
+            const row = tbody.insertRow();
+            row.className =
+              "group cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 animate-fade-in-up";
+            row.style.animationDelay = `${rowIndex * 30}ms`;
+            row.addEventListener("click", (e) => {
+              if (e.target.closest("button") || e.target.tagName === "A")
+                return;
+              navigateTo({ id: rowObject.id, name: rowObject.name });
+            });
+            rowObject.data.forEach((cellData, cellIndex) => {
+              const cell = row.insertCell();
+              const header = node.tableHeaders[cellIndex];
+              cell.className = "whitespace-pre-wrap break-words align-top";
+              if (header && header.type === "url" && cellData) {
+                let href = cellData.trim();
+                if (!/^https?:\/\//i.test(href)) href = `https://${href}`;
+                cell.innerHTML = `<a href="${href}" target="_blank" rel="noopener noreferrer" class="text-sky-600 dark:text-sky-400 hover:underline">${cellData}</a>`;
+              } else if (header && header.type === "date") {
+                cell.textContent = formatDateForDisplay(cellData);
+              } else {
+                cell.textContent = cellData;
+              }
+            });
+            const navCell = row.insertCell();
+            navCell.className =
+              "text-slate-400 dark:text-slate-500 group-hover:text-sky-500 transition-colors";
+            const hasChildren =
+              (rowObject.children && rowObject.children.length > 0) ||
+              (rowObject.tableHeaders && rowObject.tableHeaders.length > 0);
+            if (hasChildren) {
+              navCell.innerHTML = ICONS.folder.replace(
+                'class="w-6 h-6 mr-3',
+                'class="w-5 h-5"'
+              );
+            } else {
+              navCell.innerHTML = ICONS.chevron;
+            }
+            const actionCell = row.insertCell();
+            actionCell.className = "text-center";
+            const deleteBtn = document.createElement("button");
+            deleteBtn.className =
+              "list-delete-btn p-1 rounded-full hover:bg-red-100 dark:hover:bg-red-900/30 text-slate-400 hover:text-red-500 transition-colors";
+            deleteBtn.innerHTML = ICONS.trash.replace(
+              'class="w-5 h-5"',
+              'class="w-4 h-4"'
+            );
+            deleteBtn.onclick = (e) => {
+              e.stopPropagation();
+              handleListItemDelete(rowObject.id, rowObject.name);
+            };
+            actionCell.appendChild(deleteBtn);
+          });
+        }
+        tableWrapper.appendChild(table);
+        container.appendChild(tableWrapper);
+        if (!node.content || node.content.length === 0) {
+          const p = document.createElement("p");
+          p.className =
+            "text-center text-sm text-slate-500 dark:text-slate-400 p-4";
+          p.textContent =
+            "Nenhuma linha na tabela. Adicione uma clicando no '+' acima.";
+          container.appendChild(p);
+        }
+      };
+
+      const renderDetailView = (node) => {
+        appElements.detail.inlineFormContainer.innerHTML = "";
+        appElements.detail.contentDisplay.innerHTML = "";
+        isAdding = false;
+        const isRowView = node && node.isRow === true;
+        const titleName = `<span class="font-bold text-sky-600 dark:text-sky-400">${node.name}</span>`;
+        appElements.detail.contentTitle.innerHTML = isRowView
+          ? `Dados em ${titleName}`
+          : `Conteúdo em ${titleName}`;
+        appElements.detail.subkeyTitle.innerHTML = `Sub-chaves em ${titleName}`;
+        appElements.detail.showContentBtn.classList.remove("hidden");
+        if (isRowView) {
+          const parentResult = findNodeAndParent(data, node.id);
+          const parent = parentResult ? parentResult.parent : null;
+          const rowDataContainer = document.createElement("div");
+          rowDataContainer.className =
+            "p-4 bg-slate-100 dark:bg-slate-800 rounded-lg space-y-2 mb-6";
+          let rowDataHTML = "";
+          if (parent && parent.tableHeaders) {
+            node.data.forEach((item, index) => {
+              const header =
+                parent.tableHeaders[index]?.name || `Campo ${index + 1}`;
+              rowDataHTML += `<div><strong class="font-semibold text-sm text-slate-600 dark:text-slate-400">${header}:</strong><p class="text-slate-800 dark:text-slate-200 mt-1">${
+                item || " "
+              }</p></div>`;
+            });
+          }
+          rowDataContainer.innerHTML = rowDataHTML;
+          appElements.detail.contentDisplay.appendChild(rowDataContainer);
+        }
+        renderTableContent(node);
+        renderKeyList(node.children || [], appElements.detail.subkeyContainer);
+      };
+
+      const render = () => {
+        const currentNode = getCurrentNode();
+        renderBreadcrumbs();
+        if (!currentNode) {
+          appElements.views.list.classList.remove("hidden-view");
+          appElements.views.detail.classList.add("hidden-view");
+          appElements.list.form.classList.remove("hidden");
+          renderKeyList(data, appElements.list.container);
+        } else {
+          appElements.views.list.classList.add("hidden-view");
+          appElements.views.detail.classList.remove("hidden-view");
+          renderDetailView(currentNode);
+        }
+      };
+
+      const navigateTo = (pathItem) => {
+        if (isInEditMode) toggleEditMode();
+        navigationPath.push(pathItem);
+        render();
+      };
+
+      const navigateToPath = (path) => {
+        if (isInEditMode) toggleEditMode();
+        navigationPath = path;
+        appElements.header.searchInput.value = "";
+        render();
+      };
+
+      const navigateBack = () => {
+        const isSearching =
+          appElements.header.searchInput.value.trim().length > 0;
+        if (isSearching) {
+          appElements.header.searchInput.value = "";
+          handleSearch();
+        } else {
+          if (isInEditMode) toggleEditMode();
+          navigationPath.pop();
+          render();
+        }
+      };
+
+      const addKey = (name, parentNode = null) => {
+        if (!name) return;
+        const newKey = {
+          id: Date.now() + Math.random(),
+          name,
+          tableHeaders: [],
+          content: [],
+          children: [],
+        };
+        if (parentNode) {
+          (parentNode.children = parentNode.children || []).push(newKey);
+        } else {
+          data.push(newKey);
+        }
+        saveDataToFirebase();
+      };
+
+      const toggleMenu = (menu, show) => menu.classList.toggle("hidden", !show);
+      const showModal = (modal) => {
+        appElements.modals.backdrop.classList.remove("hidden");
+        modal.classList.remove("hidden");
+      };
+      const hideModals = () => {
+        appElements.modals.backdrop.classList.add("hidden");
+        appElements.modals.rename.classList.add("hidden");
+        appElements.modals.delete.classList.add("hidden");
+        delete appElements.modals.confirmDeleteBtn.dataset.deleteId;
+      };
+      const handleRename = () => {
+        const node = getCurrentNode();
+        if (!node) return;
+        appElements.modals.renameInput.value = node.name;
+        showModal(appElements.modals.rename);
+        appElements.modals.renameInput.focus();
+      };
+
+      const handleListItemDelete = (nodeId, nodeName) => {
+        appElements.modals.deleteKeyName.textContent = nodeName;
+        appElements.modals.confirmDeleteBtn.dataset.deleteId = nodeId;
+        showModal(appElements.modals.delete);
+      };
+
+      const confirmDelete = () => {
+        const button = appElements.modals.confirmDeleteBtn;
+        const idToDelete = button.dataset.deleteId;
+        if (!idToDelete) return;
+        const isListItemDelete = !!idToDelete;
+        const currentId = Number(idToDelete);
+        const { parent } = findNodeAndParent(data, currentId);
+        if (!parent) {
+          const index = data.findIndex((n) => n.id === currentId);
+          if (index > -1) data.splice(index, 1);
+        } else {
+          let collection =
+            parent.children.length > 0 ? parent.children : parent.content;
+          let index = collection.findIndex((n) => n.id === currentId);
+          if (index === -1 && parent.content) {
+            collection = parent.content;
+            index = collection.findIndex((n) => n.id === currentId);
+          }
+          if (index > -1) collection.splice(index, 1);
+        }
+        hideModals();
+        if (isInEditMode) toggleEditMode();
+        saveDataToFirebase();
+        if (!isListItemDelete) {
+          navigateBack();
+        } else {
+          render();
+        }
+      };
+
+      const toggleEditMode = () => {
+        isInEditMode = !isInEditMode;
+        appElements.appContainer.classList.toggle("edit-mode", isInEditMode);
+        appElements.header.editModeBtn.classList.toggle(
+          "bg-sky-100",
+          isInEditMode
+        );
+        appElements.header.editModeBtn.classList.toggle(
+          "dark:bg-sky-900",
+          isInEditMode
+        );
+        updateHeaderState();
+      };
+
+      const cancelInlineForm = () => {
+        isAdding = false;
+        appElements.detail.inlineFormContainer.innerHTML = "";
+        appElements.detail.showContentBtn.classList.remove("hidden");
+      };
+
+      const renderContentTypeChoiceForm = () => {
+        isAdding = true;
+        appElements.detail.showContentBtn.classList.add("hidden");
+        const formContainer = appElements.detail.inlineFormContainer;
+        formContainer.innerHTML = `<div class="p-4 bg-slate-100 dark:bg-slate-800 rounded-lg"><p class="text-sm font-semibold mb-3 text-center">Qual tipo de conteúdo você quer adicionar?</p><div class="flex flex-col sm:flex-row gap-3"><button id="add-single-column-btn" class="flex-1 px-4 py-3 rounded-lg text-sm font-medium text-center bg-white dark:bg-slate-800/50 border-2 border-sky-500 text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/50 transition-colors"><strong class="block">Conteúdo Simples</strong><span class="text-xs opacity-80 text-slate-500 dark:text-slate-400">Uma única coluna de texto.</span></button><button id="add-table-btn" class="flex-1 px-4 py-3 rounded-lg text-sm font-medium text-center bg-white dark:bg-slate-800/50 border-2 border-indigo-500 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/50 transition-colors"><strong class="block">Tabela</strong><span class="text-xs opacity-80 text-slate-500 dark:text-slate-400">Múltiplas colunas customizáveis.</span></button></div><div class="text-center mt-4"><button type="button" id="cancel-content-choice" class="px-4 py-2 rounded-md text-sm font-medium bg-slate-200 dark:bg-slate-600 hover:bg-slate-300 dark:hover:bg-slate-500">Cancelar</button></div></div>`;
+        document
+          .getElementById("add-single-column-btn")
+          .addEventListener("click", () => {
+            const node = getCurrentNode();
+            if (node) {
+              node.tableHeaders = [{ name: "Conteúdo", type: "text" }];
+              renderAddTableRowForm();
+            }
+          });
+        document
+          .getElementById("add-table-btn")
+          .addEventListener("click", () => renderInitialSetupForm());
+        document
+          .getElementById("cancel-content-choice")
+          .addEventListener("click", cancelInlineForm);
+      };
+
+      const renderInitialSetupForm = () => {
+        isAdding = true;
+        appElements.detail.showContentBtn.classList.add("hidden");
+        const formContainer = appElements.detail.inlineFormContainer;
+        formContainer.innerHTML = `<div class="p-4 bg-slate-100 dark:bg-slate-800 rounded-lg"><p class="text-sm font-semibold mb-2">Configuração da Tabela</p><form id="setup-form" class="flex flex-wrap items-center gap-3"><label for="column-count-input" class="text-sm">Quantas colunas você quer?</label><input type="number" id="column-count-input" min="1" max="10" value="2" class="w-20 p-2 rounded-md text-sm bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-50"><button type="submit" class="px-4 py-2 rounded-md text-sm font-medium text-white bg-sky-600 hover:bg-sky-700">Próximo</button><button type="button" id="cancel-setup" class="px-4 py-2 rounded-md text-sm font-medium bg-slate-200 dark:bg-slate-600 hover:bg-slate-300 dark:hover:bg-slate-500">Cancelar</button></form></div>`;
+        document
+          .getElementById("setup-form")
+          .addEventListener("submit", (e) => {
+            e.preventDefault();
+            const count = parseInt(
+              document.getElementById("column-count-input").value,
+              10
+            );
+            if (count > 0) startHeaderDefinitionProcess(count);
+          });
+        document
+          .getElementById("cancel-setup")
+          .addEventListener("click", cancelInlineForm);
+      };
+
+      const startHeaderDefinitionProcess = (count) =>
+        renderColumnNameForm(0, count, []);
+
+      const renderColumnNameForm = (index, count, headers) => {
+        const formContainer = appElements.detail.inlineFormContainer;
+        formContainer.innerHTML = `<div class="p-4 bg-slate-100 dark:bg-slate-800 rounded-lg"><p class="text-sm font-semibold mb-2">Defina a Coluna ${
+          index + 1
+        } de ${count}</p><form id="column-name-form" class="space-y-3"><input type="text" placeholder="Nome da Coluna" id="column-name-input" class="w-full p-2 rounded-md text-sm bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600" required><div class="flex justify-end gap-2 pt-2"><button type="button" id="cancel-headers" class="px-4 py-2 rounded-md text-sm font-medium bg-slate-200 dark:bg-slate-600 hover:bg-slate-300 dark:hover:bg-slate-500">Cancelar</button><button type="submit" class="px-4 py-2 rounded-md text-sm font-medium text-white bg-sky-600 hover:bg-sky-700">Próximo</button></div></form></div>`;
+        document.getElementById("column-name-input").focus();
+        document
+          .getElementById("cancel-headers")
+          .addEventListener("click", cancelInlineForm);
+        document
+          .getElementById("column-name-form")
+          .addEventListener("submit", (e) => {
+            e.preventDefault();
+            const name = document
+              .getElementById("column-name-input")
+              .value.trim();
+            if (name) {
+              const newHeaders = [...headers, { name }];
+              renderColumnTypeForm(index, count, newHeaders);
+            }
+          });
+      };
+
+      const renderColumnTypeForm = (index, count, headers) => {
+        const formContainer = appElements.detail.inlineFormContainer;
+        const currentHeader = headers[index];
+        formContainer.innerHTML = `<div class="p-4 bg-slate-100 dark:bg-slate-800 rounded-lg"><p class="text-sm font-semibold mb-2">Selecione o tipo para <span class="font-bold text-sky-600 dark:text-sky-400">${currentHeader.name}</span></p><form id="column-type-form" class="space-y-3"><select id="column-type-select" class="w-full p-2 rounded-md text-sm bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600"><option value="text">Texto</option><option value="number">Número</option><option value="date">Data</option><option value="email">Email</option><option value="url">URL</option></select><div class="flex justify-end gap-2 pt-2"><button type="button" id="cancel-headers" class="px-4 py-2 rounded-md text-sm font-medium bg-slate-200 dark:bg-slate-600 hover:bg-slate-300 dark:hover:bg-slate-500">Cancelar</button><button type="submit" class="px-4 py-2 rounded-md text-sm font-medium text-white bg-sky-600 hover:bg-sky-700">Confirmar</button></div></form></div>`;
+        document
+          .getElementById("cancel-headers")
+          .addEventListener("click", cancelInlineForm);
+        document
+          .getElementById("column-type-form")
+          .addEventListener("submit", (e) => {
+            e.preventDefault();
+            const type = document.getElementById("column-type-select").value;
+            const updatedHeaders = headers.map((h, i) =>
+              i === index ? { ...h, type } : h
+            );
+            if (index + 1 < count) {
+              renderColumnNameForm(index + 1, count, updatedHeaders);
+            } else {
+              const node = getCurrentNode();
+              if (node) {
+                node.tableHeaders = updatedHeaders;
+                cancelInlineForm();
+                saveDataToFirebase();
+              }
+            }
+          });
+      };
+
+      const renderAddTableRowForm = () => {
+        const node = getCurrentNode();
+        if (!node || !node.tableHeaders) return;
+        isAdding = true;
+        appElements.detail.showContentBtn.classList.add("hidden");
+        const formContainer = appElements.detail.inlineFormContainer;
+        let inputsHTML = node.tableHeaders
+          .map((header, i) => {
+            const inputType =
+              header.type === "date"
+                ? "date"
+                : header.type === "number"
+                ? "number"
+                : "text";
+            return `<div class="flex flex-col gap-1"><label for="table-input-${i}" class="text-sm font-medium text-slate-600 dark:text-slate-300">${header.name}</label><input type="${inputType}" id="table-input-${i}" placeholder="${header.name}" class="p-2 rounded-md text-sm bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-50"></div>`;
+          })
+          .join("");
+        formContainer.innerHTML = `<div class="p-4 bg-slate-100 dark:bg-slate-800 rounded-lg"><form id="add-row-form"><div class="grid grid-cols-1 md:grid-cols-${Math.min(
+          node.tableHeaders.length,
+          2
+        )} gap-4">${inputsHTML}</div><div class="flex justify-end gap-2 pt-4"><button type="button" id="cancel-add-row" class="px-4 py-2 rounded-md text-sm font-medium bg-slate-200 dark:bg-slate-600 hover:bg-slate-300 dark:hover:bg-slate-500">Cancelar</button><button type="submit" class="px-4 py-2 rounded-md text-sm font-medium text-white bg-emerald-500 hover:bg-emerald-600">Adicionar Linha</button></div></form></div>`;
+        const addRowForm = document.getElementById("add-row-form");
+        if (!addRowForm) return;
+        addRowForm.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const newRowData = node.tableHeaders.map((_, i) => {
+            const input = addRowForm.querySelector(`#table-input-${i}`);
+            return input ? input.value : "";
+          });
+          if (newRowData.some((val) => val && val.trim())) {
+            const newRowObject = {
+              id: Date.now() + Math.random(),
+              name: String(newRowData[0] || "Item"),
+              data: newRowData,
+              children: [],
+              tableHeaders: [],
+              content: [],
+              isRow: true,
+            };
+            (node.content = node.content || []).push(newRowObject);
+            cancelInlineForm();
+            saveDataToFirebase();
+          }
+        });
+        document
+          .getElementById("cancel-add-row")
+          .addEventListener("click", cancelInlineForm);
+      };
+
+      const searchAll = (nodes, query, currentPath) => {
+        let results = [];
+        const lowerCaseQuery = query.toLowerCase();
+        for (const node of nodes) {
+          if (!node) continue;
+          const nodePath = [...currentPath, { id: node.id, name: node.name }];
+          let matched = false;
+          if (String(node.name).toLowerCase().includes(lowerCaseQuery)) {
+            results.push({
+              id: node.id,
+              name: node.name,
+              path: nodePath,
+              context: node.isRow ? `Linha encontrada` : `Chave encontrada`,
+            });
+            matched = true;
+          }
+          if (node.isRow && node.data) {
+            const match = node.data.find((cell) =>
+              String(cell).toLowerCase().includes(lowerCaseQuery)
+            );
+            if (match && !matched) {
+              results.push({
+                id: node.id,
+                name: node.name,
+                path: nodePath,
+                context: `Conteúdo: "..."`,
+              });
+            }
+          }
+          const childrenToSearch = [
+            ...(node.children || []),
+            ...(node.content || []),
+          ];
+          if (childrenToSearch.length > 0) {
+            results = results.concat(
+              searchAll(childrenToSearch, query, nodePath)
+            );
+          }
+        }
+        return results.filter(
+          (v, i, a) =>
+            a.findIndex(
+              (t) =>
+                t.path.map((p) => p.id).join(">") ===
+                v.path.map((p) => p.id).join(">")
+            ) === i
+        );
+      };
+
+      const renderSearchResults = (results) => {
+        appElements.views.detail.classList.add("hidden-view");
+        appElements.views.list.classList.remove("hidden-view");
+        appElements.list.form.classList.add("hidden");
+        const container = appElements.list.container;
+        container.innerHTML = "";
+        if (results.length === 0) {
+          container.innerHTML = `<p class="text-center text-sm text-slate-500 dark:text-slate-400 p-4">Nenhum resultado encontrado.</p>`;
+          return;
+        }
+        results.forEach((result) => {
+          const pathString = result.path.map((p) => p.name).join(" > ");
+          const element = document.createElement("button");
+          element.className =
+            "key-item w-full flex items-center p-3 bg-white dark:bg-slate-800 rounded-lg shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors text-left";
+          element.innerHTML = `${ICONS.searchResult}<div class="flex-1 truncate"><span class="font-medium text-slate-700 dark:text-slate-200">${result.name}</span><p class="text-xs text-slate-500 dark:text-slate-400 truncate">${pathString}</p><p class="text-xs text-indigo-600 dark:text-indigo-400 truncate">${result.context}</p></div>${ICONS.chevron}`;
+          element.addEventListener("click", () => navigateToPath(result.path));
+          container.appendChild(element);
+        });
+      };
+
+      const handleSearch = () => {
+        const query = appElements.header.searchInput.value.trim();
+        if (query.length > 1) {
+          const results = searchAll(data, query, []);
+          renderSearchResults(results);
+        } else if (navigationPath.length === 0) {
+          render();
+        }
+      };
+
+      const updateThemeIcon = () => {
+        const isDark = document.documentElement.classList.contains("dark");
+        appElements.theme.lightIcon.classList.toggle("hidden", isDark);
+        appElements.theme.darkIcon.classList.toggle("hidden", !isDark);
+      };
+
+      const toggleTheme = () => {
+        const isDark = document.documentElement.classList.toggle("dark");
+        localStorage.setItem(THEME_KEY, isDark ? "dark" : "light");
+        updateThemeIcon();
+      };
+
+      // --- DOM & EVENT LISTENER SETUP ---
+      document.addEventListener("DOMContentLoaded", () => {
+        appElements = {
+          appContainer: document.getElementById("app-container"),
+          header: {
+            backBtn: document.getElementById("back-btn"),
+            breadcrumbs: document.getElementById("breadcrumb-container"),
+            optionsBtn: document.getElementById("options-btn"),
+            optionsMenu: document.getElementById("options-menu"),
+            editModeBtn: document.getElementById("edit-mode-btn"),
+            searchInput: document.getElementById("search-input"),
+          },
+          views: {
+            list: document.getElementById("list-view"),
+            detail: document.getElementById("detail-view"),
+          },
+          list: {
+            form: document.getElementById("add-key-form"),
+            input: document.getElementById("new-key-input"),
+            container: document.getElementById("keys-list-container"),
+          },
+          detail: {
+            contentTitle: document.getElementById("content-title"),
+            subkeyTitle: document.getElementById("subkey-title"),
+            contentDisplay: document.getElementById("content-display"),
+            showContentBtn: document.getElementById("show-add-content-btn"),
+            inlineFormContainer: document.getElementById(
+              "inline-form-container"
+            ),
+            subkeyForm: document.getElementById("add-subkey-form"),
+            subkeyInput: document.getElementById("new-subkey-input"),
+            subkeyContainer: document.getElementById("subkey-list-container"),
+            showSubkeyBtn: document.getElementById("show-add-subkey-btn"),
+          },
+          theme: {
+            toggle: document.getElementById("theme-toggle"),
+            lightIcon: document.getElementById("theme-icon-light"),
+            darkIcon: document.getElementById("theme-icon-dark"),
+          },
+          modals: {
+            backdrop: document.getElementById("modal-backdrop"),
+            rename: document.getElementById("rename-modal"),
+            renameForm: document.getElementById("rename-form"),
+            renameInput: document.getElementById("rename-input"),
+            cancelRenameBtn: document.getElementById("cancel-rename-btn"),
+            delete: document.getElementById("delete-modal"),
+            deleteKeyName: document.getElementById("delete-key-name"),
+            cancelDeleteBtn: document.getElementById("cancel-delete-btn"),
+            confirmDeleteBtn: document.getElementById("confirm-delete-btn"),
+          },
+          options: {
+            renameBtn: document.getElementById("rename-btn"),
+            deleteBtn: document.getElementById("delete-btn"),
+          },
+          login: {
+            screen: document.getElementById("login-screen"),
+            googleSignInBtn: document.getElementById("google-signin-btn"),
+          },
+          logoutBtn: document.getElementById("logout-btn"),
+        };
+
+        appElements.header.backBtn.addEventListener("click", navigateBack);
+        appElements.header.editModeBtn.addEventListener(
+          "click",
+          toggleEditMode
+        );
+        appElements.theme.toggle.addEventListener("click", toggleTheme);
+        appElements.header.searchInput.addEventListener("input", handleSearch);
+        appElements.login.googleSignInBtn.addEventListener("click", () =>
+          signInWithPopup(auth, googleProvider)
+        );
+        appElements.logoutBtn.addEventListener("click", () => signOut(auth));
+
+        let isAddKeyInputVisible = false;
+        const addKeyBtn = document.getElementById("add-key-btn");
+        const newKeyInput = document.getElementById("new-key-input");
+        const addKeyForm = document.getElementById("add-key-form");
+        const showInput = () => {
+          if (isAddKeyInputVisible) return;
+          isAddKeyInputVisible = true;
+          addKeyBtn.classList.remove("rounded-md");
+          addKeyBtn.classList.add("rounded-l-md", "rounded-r-none");
+          addKeyBtn.innerHTML = `<svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>`;
+          newKeyInput.classList.remove("w-0", "opacity-0");
+          newKeyInput.focus();
+        };
+        const hideInputAndReset = () => {
+          if (!isAddKeyInputVisible) return;
+          isAddKeyInputVisible = false;
+          newKeyInput.value = "";
+          addKeyBtn.classList.add("rounded-md");
+          addKeyBtn.classList.remove("rounded-l-md", "rounded-r-none");
+          addKeyBtn.innerHTML = `<svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>`;
+          newKeyInput.classList.add("w-0", "opacity-0");
+        };
+        const handleAddKeyAction = () => {
+          if (!isAddKeyInputVisible) {
+            showInput();
+          } else {
+            const keyName = newKeyInput.value.trim();
+            if (keyName) addKey(keyName);
+            hideInputAndReset();
+          }
+        };
+        addKeyBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          handleAddKeyAction();
+        });
+        addKeyForm.addEventListener("submit", (e) => {
+          e.preventDefault();
+          handleAddKeyAction();
+        });
+
+        appElements.detail.showSubkeyBtn.addEventListener("click", () => {
+          appElements.detail.showSubkeyBtn.classList.add("hidden");
+          appElements.detail.subkeyForm.classList.remove("hidden");
+          appElements.detail.subkeyInput.focus();
+        });
+        appElements.detail.subkeyForm.addEventListener("submit", (e) => {
+          e.preventDefault();
+          addKey(appElements.detail.subkeyInput.value.trim(), getCurrentNode());
+          appElements.detail.subkeyInput.value = "";
+          appElements.detail.subkeyForm.classList.add("hidden");
+          appElements.detail.showSubkeyBtn.classList.remove("hidden");
+        });
+
+        appElements.header.optionsBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          toggleMenu(
+            appElements.header.optionsMenu,
+            !appElements.header.optionsMenu.classList.contains("hidden")
+          );
+        });
+
+        document.addEventListener("click", (e) => {
+          if (!appElements.header.optionsMenu.classList.contains("hidden"))
+            toggleMenu(appElements.header.optionsMenu, false);
+          if (isAddKeyInputVisible && !addKeyForm.contains(e.target))
+            hideInputAndReset();
+        });
+
+        appElements.options.renameBtn.addEventListener("click", () => {
+          toggleMenu(appElements.header.optionsMenu, false);
+          handleRename();
+        });
+        appElements.options.deleteBtn.addEventListener("click", () => {
+          toggleMenu(appElements.header.optionsMenu, false);
+          const node = getCurrentNode();
+          if (node) handleListItemDelete(node.id, node.name);
+        });
+        appElements.modals.renameForm.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const node = getCurrentNode();
+          if (node) {
+            node.name = appElements.modals.renameInput.value.trim();
+            if (node.isRow) node.data[0] = node.name;
+          }
+          hideModals();
+          saveDataToFirebase();
+        });
+        appElements.modals.cancelRenameBtn.addEventListener(
+          "click",
+          hideModals
+        );
+        appElements.modals.cancelDeleteBtn.addEventListener(
+          "click",
+          hideModals
+        );
+        appElements.modals.confirmDeleteBtn.addEventListener(
+          "click",
+          confirmDelete
+        );
+        appElements.detail.showContentBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          if (isAdding) return;
+          const node = getCurrentNode();
+          if (!node) return;
+          if (node.tableHeaders && node.tableHeaders.length > 0) {
+            renderAddTableRowForm();
+          } else {
+            renderContentTypeChoiceForm();
+          }
+        });
+
+        const preferredTheme = localStorage.getItem(THEME_KEY);
+        if (
+          preferredTheme === "dark" ||
+          (!preferredTheme &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches)
+        ) {
+          document.documentElement.classList.add("dark");
+        }
+        updateThemeIcon();
+      });
+
+      // --- FIREBASE AUTHENTICATION LISTENER ---
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          currentUser = user;
+          userId = user.uid;
+          document.getElementById("login-screen").classList.add("hidden");
+          document.getElementById("app-container").classList.remove("hidden");
+          loadDataFromFirebase();
+        } else {
+          if (
+            typeof __initial_auth_token !== "undefined" &&
+            __initial_auth_token
+          ) {
+            try {
+              await signInWithCustomToken(auth, __initial_auth_token);
+            } catch (error) {
+              console.error("Error signing in with custom token:", error);
+              await signInAnonymously(auth);
+            }
+          } else {
+            currentUser = null;
+            userId = null;
+            if (unsubscribeFromData) unsubscribeFromData();
+            document.getElementById("login-screen").classList.remove("hidden");
+            document.getElementById("app-container").classList.add("hidden");
+            data = [];
+            navigationPath = [];
+            if (appElements.appContainer) render();
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
